@@ -1,0 +1,281 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conception d'une Presse Hydraulique - ZAIIRI Mohamed Ali</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            padding-top: 80px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: #fff;
+            padding: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        .nav-links li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links li a:hover {
+            color: #93c5fd;
+        }
+
+        .burger {
+            display: none;
+            cursor: pointer;
+        }
+
+        .burger div {
+            width: 25px;
+            height: 3px;
+            background-color: #fff;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .section-padding {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 40px;
+            color: #1e3a8a;
+        }
+
+        .project-details img {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .project-details h3 {
+            font-size: 1.8rem;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+
+        .project-details p {
+            margin-bottom: 15px;
+            color: #4b5563;
+        }
+
+        .project-details ul {
+            list-style: disc;
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .primary-btn {
+            background-color: #2563eb;
+            color: #fff;
+        }
+
+        .primary-btn:hover {
+            background-color: #1e40af;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            background: #1e3a8a;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                background: #1e3a8a;
+                padding: 20px;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .burger {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="https://via.placeholder.com/50" alt="Profile Picture">
+                <a href="index.html">Mohamed Ali ZAIIRI</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html#about">À Propos</a></li>
+                <li><a href="index.html#experience">Expérience</a></li>
+                <li><a href="index.html#projects">Projets</a></li>
+                <li><a href="index.html#skills">Compétences</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="section-padding">
+        <div class="container">
+            <h2 class="section-title">Conception d'une Presse Hydraulique</h2>
+            <div class="project-details">
+                <img src="https://via.placeholder.com/600x400/cccccc/ffffff?text=Presse+Hydraulique" alt="Presse Hydraulique">
+                <h3>Description</h3>
+                <p>Ce projet académique consistait à concevoir et modéliser une presse hydraulique industrielle, avec un focus sur l'optimisation des performances et l'efficacité énergétique. Le design a été réalisé en tenant compte des contraintes industrielles réelles.</p>
+                <h3>Technologies Utilisées</h3>
+                <ul>
+                    <li>Conception assistée par ordinateur (CAO) avec CATIA V5</li>
+                    <li>Analyse des contraintes avec SolidWorks</li>
+                    <li>Modélisation 3D</li>
+                </ul>
+                <h3>Réalisations</h3>
+                <p>La presse a été modélisée en 3D avec une analyse approfondie des contraintes mécaniques pour garantir la robustesse des composants. Des optimisations ont été apportées pour réduire les pertes d'énergie et améliorer la durée de vie des pièces critiques.</p>
+                <h3>Impact</h3>
+                <p>Ce projet a permis de développer une compréhension approfondie des systèmes hydrauliques et de renforcer mes compétences en conception mécanique et analyse structurelle.</p>
+                <a href="index.html#projects" class="btn primary-btn">Retour aux Projets</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 ZAIIRI Mohamed Ali. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        const burger = document.querySelector('.burger');
+        const navLinks = document.querySelector('.nav-links');
+        burger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            burger.classList.toggle('toggle');
+        });
+    </script>
+</body>
+</html>
